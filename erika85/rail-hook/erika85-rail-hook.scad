@@ -135,10 +135,10 @@ tightening_bolt();
 }    
 
 
-/*
+
 translate([0,20,lh])
 rotate([-90,0,0])
-*/
+
 difference() {
     union(){
     translate([-wp,0,-wp])
