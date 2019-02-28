@@ -1,4 +1,41 @@
+/* 
+   ==================================================================
+   Rail Hooks for Erika85 table saw from Mafell.
+   ------------------------------------------------------------------
+   Author: Stefan Eppe
+   Created: January 2019
+   ==================================================================
+   
+   The aim is to allow jigs to be easily clampled to the table saw's 
+   rails (sides, front or rear). The top of the hook is flush to the 
+   table and three holes with countersinks allow fixing a board used 
+   as base for a jig.
+   The hook is composed of two pieces, the smaller one sliding in the 
+   groove of the second one. The pieces are hold together and the 
+   hook is clamped to the table saw by means of a metric bolt (M6x60). 
+   Use a wingnut to make tightening the clamp easy. 
+   
+   ------------------------------------------------------------------
+   
+   This work is licensed under the Creative Commons Attribution-
+   ShareAlike 4.0 International License (CC BY-SA 4.0). 
+   To view a copy of this license, visit
+   http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to
+   Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+   
+   ------------------------------------------------------------------
+   
+   Updates of this thing are publicly available on github at:
+   https://github.com/nafep/workshop/tree/master/erika85/rail-hook
+   
+   ------------------------------------------------------------------
 
+   NOTE: This is a fixed-sized piece. None of the parameters below 
+         should be changed, except the first four, that may be
+         modified to accomodate another bolt.
+   
+   ==================================================================
+*/
 
 // --- Params -------------------------------------
 
