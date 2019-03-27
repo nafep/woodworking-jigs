@@ -12,6 +12,7 @@ b = 15;     // Border width
 a = 1.3*r;   // Length of flat, low level area before the ramp
 g = 2;    // Height ("Ground" elevation) of the low level area before the ramp
 
+s = 10;    // Height of screw hole "plateau"
 
 // --- INTERNALS ---
 
@@ -30,9 +31,11 @@ l = x2 + r + b;
 $fn=100;
 
 module screw_hole(){
-    rotate([90,0,0]) union() {
-            cylinder(d=10,h=y2);
-            cylinder(d=5,h=y2*2);
+    translate([0,3*r-0.01,0])
+    rotate([90,0,0]) 
+        union() {
+            cylinder(d=10,h=3*r);
+            cylinder(d=5,h=6*r);
         };  
 }
 
@@ -51,18 +54,20 @@ module ramp() {
             };
         };
 
-        translate([l-b/2,y2+10,w/2]) screw_hole();
+        translate([l-b/2,s,w/2]) screw_hole();
     };
 }
 
 module base() {
-    union(){
-        cube([a+b+l,g,w]);
-        difference(){
+    difference(){
+        union(){
+            cube([a+b+l,g,w]);
             cube([b+r,g+r,w]);
-            translate([b+r,g+r,-0.1]) cylinder(r=r,h=w+0.2, $fn=200);
-            translate([b/2,y2+10,w/2]) screw_hole();
         }
+        translate([b+r,g+r,-0.1]) cylinder(r=r,h=w+0.2, $fn=200);
+        translate([b/2,s,w/2]) screw_hole();
+        translate([a+b+l-b/2,s,w/2]) screw_hole();
+
     }
 }
 
