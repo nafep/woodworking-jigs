@@ -66,7 +66,7 @@ module base() {
     }
 }
 
-
+rotate([90,0,0])  // better orient for 3D-printing
 union(){
     translate([a+b,g,0]) ramp();
     base();
