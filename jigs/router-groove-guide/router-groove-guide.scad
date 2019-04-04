@@ -51,7 +51,7 @@ translate([0,0,H])
 
 tNutLength = 20;
 
-translate([0,0,0.75*(railHeight-2*railThickness)])
+translate([0,0,(railHeight-2*railThickness)-2])
     rotate([0,180,0])
         union(){
             tNut(length = tNutLength, t=[W/2+10,10-tNutLength/2,0]);
@@ -64,8 +64,8 @@ translate([0,0,0.75*(railHeight-2*railThickness)])
 
 
 module tNut(length=10, t = [0,0,0]) {
-    width = 0.75*(railWidth-2*railThickness);
-    height=0.75*(railHeight-2*railThickness);
+    width = (railWidth-2*railThickness)-1;
+    height=(railHeight-2*railThickness)-2;
     difference() {
         translate(t) translate([-width/2,0,0]) cube([width,length,height]);
         translate(t) translate([0,length/2,0]) __screwHole(headSides=6, rot=[0,180,90], headDia=8, headHeight=3);
@@ -79,7 +79,7 @@ module gaugeLine(dia, recess = 1) {
 }
 
 module centralLine(recess = 1) {
-    translate([0,L-ringDia/2-(recess-1)*gaugeRecess-gaugeRecess,-0.1])
+    translate([0,L-ringDia/2-(recess-1)*gaugeRecess-gaugeRecess,0])
         rotate([0,0,45])
         cube([sqrt(2)*gaugeRecess,sqrt(2)*gaugeRecess,H-railVertRecess/2+0.1]);
 }
@@ -117,7 +117,7 @@ module __screwHole(tran = [0,0,0], rot = [0,0,0], headSides = 100, headDia = scr
     rotate(rot) {
         union(){
             translate([0,0,-H-0.1]) cylinder(h=H+0.2, d=screwDia+0.2, $fn=100);
-            translate([0,0,-headHeight-0.2]) cylinder(h=H+0.1, d=headDia+0.2, $fn = headSides);
+            translate([0,0,-headHeight-0.2]) cylinder(h=H+0.1, d=headDia+0.4, $fn = headSides);
         }
     }
 }
