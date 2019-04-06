@@ -53,8 +53,8 @@ tNutLength = 20;
 tNutRadius = 0;
 tNutHRadius = 3;
 
-//translate([0,0,(railHeight-2*railThickness)-1])
-//    rotate([0,180,0])
+translate([0,0,(railHeight-2*railThickness)-1])
+    rotate([0,180,0])
         union(){
             tNut(length = tNutLength, t=[W/2+10,10-tNutLength/2,0], r = tNutRadius, hr = tNutHRadius);
             tNut(length = tNutLength, t=[W/2+10,L-10-tNutLength/2,0], r = tNutRadius, hr = tNutHRadius);
@@ -140,16 +140,16 @@ module body() {
 
         union() {
             difference() {
-                translate([-W/2,0,0]) cube([W,L,H]);
+                translate([-W/2,0,0]) hrcube([W,L,H],3);
                 
                 translate([W/2-railWidth,-0.1,-0.1]) cube([railWidth+0.1,L+0.2,H-railVertRecess+0.1]);
                 translate([-W/2-0.1,-0.1,-0.1]) cube([railWidth+0.1,L+0.2,H-railVertRecess+0.1]);
             }
             
             translate([(W-railWidth-railOpeningWidth)/2,0,H-railVertRecess-0.75*railThickness])
-                cube([railOpeningWidth-0.2,L,railThickness+0.1]);
+                hrcube([railOpeningWidth-0.2,L,railThickness+0.1],3);
             translate([-(W-railWidth+railOpeningWidth)/2,0,H-railVertRecess-0.75*railThickness])
-                cube([railOpeningWidth-0.2,L,railThickness+0.1]);            
+                hrcube([railOpeningWidth-0.2,L,railThickness+0.1],3);            
         }
         
         translate([0,L,-0.1]) cylinder (h=H+0.2, d=ringDia+0.2);
