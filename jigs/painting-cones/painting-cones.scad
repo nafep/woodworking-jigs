@@ -46,5 +46,8 @@ module elementArray( width, _length=0 ) {
 
 
 module cone(dia, height) {
+    union() {
+    cylinder(h=height/2, d = dia);
     cylinder(h=height, d2 = 0, d1 = dia);
+    }
 }
