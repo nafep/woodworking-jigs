@@ -25,8 +25,12 @@
 #define DEVICE_ID "wde1200"
 #define TOPIC_DEVICE_STRLEN 15
 
-#define STATE_TOPIC "state/device"
-#define SWTCHSTATE_TOPIC "state/switch"
+#define DEVICE_INFO_TOPIC "info"
+#define DEVICE_STATE_TOPIC "state/device"
+#define SWTCH_STATE_TOPIC "state/switch"
+
+// Only define this if applicable
+//#define OTA_PASSWORD "..."
 
 #define ON true
 #define OFF false
@@ -70,8 +74,10 @@ void setup() {
   }
   Serial.println("connected");
 
-  ArduinoOTA.setHostname("shopvac-wde1200");
-  // ArduinoOTA.setPassword((const char *)"123");
+  ArduinoOTA.setHostname(DEVICE_ID);
+  #ifdef OTA_PASSWORD
+  ArduinoOTA.setPassword((const char *)OTA_PASSWORD);
+  #endif
 
   ArduinoOTA.onStart([]() {
     Serial.println("Start");
@@ -104,7 +110,7 @@ void setup() {
   publishState("ready");
   pingDevice();
 
-  mqttPublish("commands-accepted", "on, off, toggle, ping, reboot");
+  publishInfo("commands-accepted", "on, off, toggle, ping, reboot");
 }
 
 void loop() {
@@ -152,16 +158,20 @@ void generalSubscriber(String topic, String message) {
   Serial.println("Ignoring unknown request: '" + message + "'");
 }
 
-void mqttPublish(String topic, String message){
+void mqttPublish(String topic, String message) {
   mqtt.publish(TOPIC_PREFIX DEVICE_ID "/" + topic, message );
 }
 
 void publishState(String message) {
-  mqttPublish(STATE_TOPIC, message);
+  mqttPublish(DEVICE_STATE_TOPIC, message);
+}
+
+void publishInfo(String topic, String message) {
+  mqttPublish(DEVICE_INFO_TOPIC "/" + topic, message);
 }
 
 void publishSwitchState() {
-  mqttPublish(SWTCHSTATE_TOPIC, getRelay()?"ON":"OFF");
+  mqttPublish(SWTCH_STATE_TOPIC, getRelay()?"ON":"OFF");
 }
 
 void plugControl() {
