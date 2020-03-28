@@ -14,7 +14,7 @@
  * These respectively define the wifi ssid and password, 
  * and the ip address on hostname of the MQTT server.
  */
-#include "network+mqtt-credentials.h"
+#include "wifi+mqtt-credentials.h"
 
 #define TOPIC_PREFIX "domotik/"
 #define DEVICE_ID "SwitchArray-1"
