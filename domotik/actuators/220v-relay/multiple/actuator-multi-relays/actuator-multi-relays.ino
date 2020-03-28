@@ -110,6 +110,11 @@ void setup() {
 void loop() {
   client.loop();
   threadControl.run();
+
+  ArduinoOTA.handle();
+
+  delay(200);
+  
   //delay(500);
   //Serial.print(".");
 }
