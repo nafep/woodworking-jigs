@@ -1,4 +1,9 @@
 #include <ESP8266WiFi.h>
+
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
 #include <PubSubClient.h>
 #include <PubSubClientTools.h>
 
@@ -19,6 +24,13 @@
 #define TOPIC_PREFIX "domotik/"
 #define DEVICE_ID "SwitchArray-1"
 #define TOPIC_DEVICE_STRLEN 21
+
+#define DEVICE_INFO_TOPIC "info"
+#define DEVICE_STATE_TOPIC "state/device"
+#define SWTCH_STATE_TOPIC "state/switch"
+
+// Only define this if applicable
+//#define OTA_PASSWORD "..."
 
 #define ON true
 #define OFF false
@@ -55,6 +67,30 @@ void setup() {
   }
   Serial.println("connected");
 
+  ArduinoOTA.setHostname(DEVICE_ID);
+  #ifdef OTA_PASSWORD
+  ArduinoOTA.setPassword((const char *)OTA_PASSWORD);
+  #endif
+
+  ArduinoOTA.onStart([]() {
+    Serial.println("Start");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  ArduinoOTA.begin();  
+
   // Connect to MQTT
   connectToMQTT();
   mqtt.subscribe(TOPIC_PREFIX DEVICE_ID "",  generalSubscriber);  // Visually check if device is responsive
@@ -65,7 +101,10 @@ void setup() {
   thread.setInterval(63000);
   threadControl.add(&thread);
 
+  publishState("ready");
   pingDevice();
+
+  publishInfo("commands-accepted", "<to be completed>");
 }
 
 void loop() {
@@ -129,11 +168,28 @@ void switchSubscriber(String topic, String message) {
 
 void generalSubscriber(String topic, String message) {
   message.toUpperCase();
-  if (message == "PING")    pingDevice(); return;  
+  if (message == "PING")     { pingDevice(); return; }
+  if (message == "REBOOT")   { ESP.restart();   return; }
   // if (message = "...")     .... ; return; 
   Serial.println("Unknown request: '" + message + "'");
 }
 
+void mqttPublish(String topic, String message) {
+  mqtt.publish(TOPIC_PREFIX DEVICE_ID "/" + topic, message );
+}
+
+void publishState(String message) {
+  mqttPublish(DEVICE_STATE_TOPIC, message);
+}
+
+void publishInfo(String topic, String message) {
+  mqttPublish(DEVICE_INFO_TOPIC "/" + topic, message);
+}
+/*
+void publishSwitchState() {
+  mqttPublish(SWTCH_STATE_TOPIC, getRelay()?"ON":"OFF");
+}
+*/
 void switchBuiltInLed(boolean onOff) {
   digitalWrite(LED_BUILTIN, onOff?LOW:HIGH);
 }
