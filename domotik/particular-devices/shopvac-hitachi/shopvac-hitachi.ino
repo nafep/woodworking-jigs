@@ -10,15 +10,14 @@
 #include <Thread.h>             // https://github.com/ivanseidel/ArduinoThread
 #include <ThreadController.h>
 
-#define WIFI_SSID "Axilo"
-#define WIFI_PASS "Woodworker2019"
-#define MQTT_SERVER "workshop-pi.local"
+#include "wifi+mqtt-credentials.h"
 
 #define TOPIC_PREFIX "shopvac/"
 #define DEVICE_ID "wde1200"
 #define TOPIC_DEVICE_STRLEN 15
 
-#define STATE_TOPIC "state"
+#define STATE_TOPIC "state/device"
+#define SWTCHSTATE_TOPIC "state/switch"
 
 #define ON true
 #define OFF false
@@ -116,7 +115,7 @@ boolean getRelay() {
 
 void setRelay(boolean onOff) {
   digitalWrite(relayPin, onOff?HIGH:LOW);
-  publishSwitchState(onOff?"ON":"OFF");
+  publishSwitchState();
   flickerDevice();
 }
 

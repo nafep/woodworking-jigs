@@ -5,9 +5,7 @@
 #include <Thread.h>             // https://github.com/ivanseidel/ArduinoThread
 #include <ThreadController.h>
 
-#define WIFI_SSID "Axilo"
-#define WIFI_PASS "Woodworker2019"
-#define MQTT_SERVER "192.168.1.101"
+#include "../network+mqtt-credentials.h"
 
 #define TOPIC_PREFIX "domotik/"
 #define DEVICE_ID "SwitchArray-1"
