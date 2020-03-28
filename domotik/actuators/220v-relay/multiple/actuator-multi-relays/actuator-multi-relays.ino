@@ -22,12 +22,14 @@
 #include "wifi+mqtt-credentials.h"
 
 #define TOPIC_PREFIX "domotik/"
-#define DEVICE_ID "SwitchArray-1"
-#define TOPIC_DEVICE_STRLEN 21
+#define DEVICE_ID    "SwitchArray-1"
+#define SWITCH_TOPIC "switch"
+#define TOPIC_DEVICE_STRLEN 28
 
 #define DEVICE_INFO_TOPIC "info"
 #define DEVICE_STATE_TOPIC "state/device"
 #define SWTCH_STATE_TOPIC "state/switch"
+
 
 // Only define this if applicable
 //#define OTA_PASSWORD "..."
@@ -94,7 +96,7 @@ void setup() {
   // Connect to MQTT
   connectToMQTT();
   mqtt.subscribe(TOPIC_PREFIX DEVICE_ID "",  generalSubscriber);  // Visually check if device is responsive
-  mqtt.subscribe(TOPIC_PREFIX DEVICE_ID "/#",  switchSubscriber);  // Catch-all, to be placed as last subscription
+  mqtt.subscribe(TOPIC_PREFIX DEVICE_ID "/" SWITCH_TOPIC "/#",  switchSubscriber);  // Catch-all, to be placed as last subscription
 
   // Enable Thread
   thread.onRun(checkMQTTconnection);
