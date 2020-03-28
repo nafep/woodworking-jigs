@@ -5,7 +5,16 @@
 #include <Thread.h>             // https://github.com/ivanseidel/ArduinoThread
 #include <ThreadController.h>
 
-#include "../network+mqtt-credentials.h"
+/*
+ * Include a file defining the network access information. 
+ * The file should contain following constant defintions.
+ *     #define WIFI_SSID "..."
+ *     #define WIFI_PASS "..."
+ *     #define MQTT_SERVER "..."
+ * These respectively define the wifi ssid and password, 
+ * and the ip address on hostname of the MQTT server.
+ */
+#include "network+mqtt-credentials.h"
 
 #define TOPIC_PREFIX "domotik/"
 #define DEVICE_ID "SwitchArray-1"

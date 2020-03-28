@@ -7,9 +7,16 @@
 
 #include <Button.h>
 
-#define WIFI_SSID "Axilo"
-#define WIFI_PASS "Woodworker2019"
-#define MQTT_SERVER "192.168.1.101"
+/*
+ * Include a file defining the network access information. 
+ * The file should contain following constant defintions.
+ *     #define WIFI_SSID "..."
+ *     #define WIFI_PASS "..."
+ *     #define MQTT_SERVER "..."
+ * These respectively define the wifi ssid and password, 
+ * and the ip address on hostname of the MQTT server.
+ */
+#include "wifi+mqtt-credentials.h"
 
 #define TOPIC_PREFIX "domotik/"
 #define DEVICE_ID "ButtonArray-1"
