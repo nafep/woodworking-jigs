@@ -1,4 +1,9 @@
 #include <ESP8266WiFi.h>
+
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
 #include <PubSubClient.h>
 #include <PubSubClientTools.h>
 
@@ -12,6 +17,8 @@
 #define TOPIC_PREFIX "shopvac/"
 #define DEVICE_ID "wde1200"
 #define TOPIC_DEVICE_STRLEN 15
+
+#define STATE_TOPIC "state"
 
 #define ON true
 #define OFF false
@@ -32,9 +39,12 @@ Thread thread = Thread();
 int value = 0;
 const String s = "";
 
+boolean mqttRelayState = false;
+
 void setup() {
   pinMode(D2,OUTPUT);
   digitalWrite(D2,false);
+  mqttRelayState = false;
   
   Serial.begin(115200);
   Serial.println();
@@ -44,12 +54,35 @@ void setup() {
 
   // Connect to WiFi
   Serial.print(s + "Connecting to WiFi: " + WIFI_SSID + " ");
+  WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("connected");
+
+  ArduinoOTA.setHostname("shopvac-wde1200");
+  // ArduinoOTA.setPassword((const char *)"123");
+
+  ArduinoOTA.onStart([]() {
+    Serial.println("Start");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  ArduinoOTA.begin();
 
   // Connect to MQTT
   connectToMQTT();
@@ -60,23 +93,21 @@ void setup() {
   thread.setInterval(63000);
   threadControl.add(&thread);
 
-  mqtt.publish(TOPIC_PREFIX DEVICE_ID, "ready" );
-
+  publishState("ready");
   pingDevice();
+
+  mqttPublish("commands-accepted", "on, off, toggle, ping, reboot");
 }
 
 void loop() {
   client.loop();
   threadControl.run();
-  //Serial.print(".");
-/*  
-  if (analogRead(analogInPin) >= 100)
-    timer = millis() + closeDelay*1000;
-  
-  digitalWrite(D2, timer>millis());
+
+  ArduinoOTA.handle();
+
+  plugControl();
 
   delay(200);
-*/
 }
 
 boolean getRelay() {
@@ -85,21 +116,59 @@ boolean getRelay() {
 
 void setRelay(boolean onOff) {
   digitalWrite(relayPin, onOff?HIGH:LOW);
+  publishSwitchState(onOff?"ON":"OFF");
   flickerDevice();
+}
+
+void mqttSetRelay(boolean onOff) {
+  mqttRelayState = onOff;
+  setRelay(onOff);
 }
 
 void toggleRelay() {
   setRelay(!getRelay());
 }
 
+void mqttToggleRelay() {
+  mqttSetRelay(!getRelay());
+}
+
 void generalSubscriber(String topic, String message) {
   message.toUpperCase();
-  if (message == "ON")       { setRelay(ON);   return; }
-  if (message == "OFF")      { setRelay(OFF);  return; }
-  if (message == "TOGGLE")   { toggleRelay();  return; }
+  if (message == "ON")       { mqttSetRelay(ON);   return; }
+  if (message == "OFF")      { mqttSetRelay(OFF);  return; }
+  if (message == "TOGGLE")   { mqttToggleRelay();  return; }
   if (message == "PING")     { pingDevice();   return; } 
+  if (message == "REBOOT")   { ESP.restart();   return; }
   
   Serial.println("Ignoring unknown request: '" + message + "'");
+}
+
+void mqttPublish(String topic, String message){
+  mqtt.publish(TOPIC_PREFIX DEVICE_ID "/" + topic, message );
+}
+
+void publishState(String message) {
+  mqttPublish(STATE_TOPIC, message);
+}
+
+void publishSwitchState() {
+  mqttPublish(SWTCHSTATE_TOPIC, getRelay()?"ON":"OFF");
+}
+
+void plugControl() {
+  if (analogRead(analogInPin) >= 100)
+    timer = millis() + closeDelay*1000;
+
+  if (timer>millis()) {
+    if (!getRelay())
+      setRelay(true);
+  }
+  else {
+    if(getRelay() && !mqttRelayState)
+      setRelay(false);
+  }
+  //setRelay(timer>millis() || mqttRelayState);
 }
 
 void switchBuiltInLed(boolean onOff) {
