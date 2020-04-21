@@ -57,8 +57,9 @@ pd = 4.2;  // upper fixing plate mounting holes diameter
 g = 5;     // gap between upper and lower hook
 
 pt = 6;    // thickness of fixing plate
-wt = 2;    // thickness of "guiding walls"
+wt = 3;    // thickness of "guiding walls"
 wp = 0.25; // "play" for guiding wall
+wi = 0.1;  // penetration of guiding walls into other elements
 
 ha = 30;   // hook angle (in degrees)
 
@@ -135,17 +136,17 @@ module fixing_plate() {
 
 module guiding_walls() {
         union() {
-        translate([-wt-wp,-lh,-wt-wp]) cube([bd-hd+wt+wp,th-pt-g,wt]);
-        translate([-wt-wp,-lh, hw+wp]) cube([bd-hd+wt+wp,th-pt-g,wt]);
-        translate([-wt-wp,-lh, -wp]) cube([wt,th-pt-g,hw+2*wp]);
-        translate([0,uh-pt,hw-(bd-hd)/2])
+        translate([-wt-wp,-lh,-wt-wp]) cube([bd-hd+wt+wp,th-pt-g+wi,wt]);
+        translate([-wt-wp,-lh, hw+wp]) cube([bd-hd+wt+wp,th-pt-g+wi,wt]);
+        translate([-wt-wp,-lh, -wp-wi]) cube([wt,th-pt-g+wi,hw+2*wp+2*wi]);
+        translate([wi,wi+uh-pt,hw-(bd-hd)/2])
             linear_extrude(height=wt) polygon([ [-wt-wp,0], [-wt-wp-po,0], [-wt-wp,-(th-pt-g)] ]);
-        translate([0,uh-pt,(bd-hd)/2-wt-wp])
+        translate([wi,wi+uh-pt,(bd-hd)/2-wt-wp])
             linear_extrude(height=wt) polygon([ [-wt-wp,0], [-wt-wp-po,0], [-wt-wp,-(th-pt-g)] ]);            
-        translate([(bd-hd)/2-wt,uh-pt,hw])
+        translate([(bd-hd)/2-wt,uh-pt+wi,hw-wi])
             rotate([0,90,0])
             linear_extrude(height=wt) polygon([ [-wt-wp,0], [-wt-wp-po,0], [-wt-wp,-(th-pt-g)] ]);
-        translate([(bd-hd)/2,uh-pt,0])
+        translate([(bd-hd)/2,uh-pt+wi,wi])
             rotate([0,-90,0])
             linear_extrude(height=wt) polygon([ [-wt-wp,0], [-wt-wp-po,0], [-wt-wp,-(th-pt-g)] ]);
         }
@@ -178,12 +179,13 @@ rotate([-90,0,0])
 
 difference() {
     union(){
-    translate([-wp,0,-wp])
-    linear_extrude (height=hw+2*wp)
-    top_profile();
+    
+        translate([-wp,0,-wp])
+        linear_extrude (height=hw+2*wp)
+        top_profile();
 
-    fixing_plate();
-    guiding_walls();
+        fixing_plate();
+        guiding_walls();
     }
     
     tightening_bolt();
